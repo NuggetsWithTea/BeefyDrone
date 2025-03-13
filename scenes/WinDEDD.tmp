@@ -1,0 +1,64 @@
+[gd_scene load_steps=12 format=3 uid="uid://bpuegyt40rap5"]
+
+[ext_resource type="Script" path="res://scripts/WindController.gd" id="1_h7g0s"]
+[ext_resource type="PackedScene" uid="uid://c6p6nf4nw2g1w" path="res://scenes/Drone.tscn" id="2_0w3p5"]
+[ext_resource type="Texture2D" uid="uid://dy8sn74ld8avx" path="res://assets/dirty road surface pixelart texture_0.png" id="3_fp3mi"]
+[ext_resource type="Texture2D" uid="uid://bfbbwh87u8wlr" path="res://assets/panorama venyl impressionistic sky width= 1440 height= 1440_0.png" id="4_gx5s4"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_2cei1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cp0ki"]
+albedo_texture = ExtResource("3_fp3mi")
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nwwww"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_84jvo"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_742sy"]
+panorama = ExtResource("4_gx5s4")
+
+[sub_resource type="Sky" id="Sky_chfnf"]
+sky_material = SubResource("PanoramaSkyMaterial_742sy")
+process_mode = 1
+radiance_size = 2
+
+[sub_resource type="Environment" id="Environment_led7t"]
+background_mode = 2
+sky = SubResource("Sky_chfnf")
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0211
+volumetric_fog_anisotropy = -0.63
+volumetric_fog_detail_spread = 3.03143
+
+[node name="WindNode" type="Node3D"]
+script = ExtResource("1_h7g0s")
+base_wind_speed = 0.0
+turbulence_strength = 0.0
+
+[node name="Drone" parent="." instance=ExtResource("2_0w3p5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.37582, 0)
+LIFT_STRENGTH = 1.0
+
+[node name="Camera3D" type="Camera3D" parent="Drone"]
+transform = Transform3D(0.999999, -0.00094904, 0.00140186, -7.4619e-09, 0.82806, 0.560639, -0.00169289, -0.560638, 0.828059, -0.0865877, 2.41951, 3.17275)
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(10000, 0, 0, 0, -0.000437114, 1, 0, -10000, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("QuadMesh_2cei1")
+surface_material_override/0 = SubResource("StandardMaterial3D_cp0ki")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+transform = Transform3D(0.037, 0, 0, 0, -1.61732e-09, -0.037, 0, 0.037, -1.61732e-09, 0, 0, 0)
+physics_material_override = SubResource("PhysicsMaterial_nwwww")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+transform = Transform3D(1.39, 0, 0, 0, 1.39, 0, 0, 0, 1.39, 0, 0, 0)
+shape = SubResource("WorldBoundaryShape3D_84jvo")
+
+[node name="Licht" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.885839, 0.463992, 0, -0.463992, -0.885839, 7.65479, 14.9868, 134.473)
+light_color = Color(0.808633, 0.685082, 0.446051, 1)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_led7t")

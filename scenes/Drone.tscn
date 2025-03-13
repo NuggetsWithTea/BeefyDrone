@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://c6p6nf4nw2g1w"]
+
+[ext_resource type="Script" path="res://scripts/Drone.gd" id="1_vvmbt"]
+[ext_resource type="PackedScene" uid="uid://d3mtxaq3737si" path="res://scenes/Propeller.tscn" id="2_ph5mp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gp6am"]
+size = Vector3(1.005, 0.24, 1.745)
+
+[sub_resource type="BoxMesh" id="BoxMesh_g6mns"]
+
+[node name="Drone" type="RigidBody3D"]
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -1.61, 0)
+script = ExtResource("1_vvmbt")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.018141, 0)
+shape = SubResource("BoxShape3D_gp6am")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.239876, 0, 0, 0, 1.74495, 0, 0.015722, 0)
+mesh = SubResource("BoxMesh_g6mns")
+
+[node name="Propeller 1" parent="." instance=ExtResource("2_ph5mp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42209, 0.597083, 0.835714)
+
+[node name="Propeller 2" parent="." instance=ExtResource("2_ph5mp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.455685, 0.597, 0.836)
+
+[node name="Propeller 3" parent="." instance=ExtResource("2_ph5mp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.456, 0.597, -0.850372)
+
+[node name="Propeller 4" parent="." instance=ExtResource("2_ph5mp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.422, 0.597, -0.85)
