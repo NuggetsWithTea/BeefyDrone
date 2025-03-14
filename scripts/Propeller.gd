@@ -31,27 +31,29 @@ func _process(delta):
 	offset_transform.origin = LOCAL_OFFSET
 
 	# Update total spin angle
-	CURRENT_ANGLE += ((CURRENT_RPM * TAU) / 60.0) * delta
-	CURRENT_ANGLE = fmod(CURRENT_ANGLE, TAU)  # TAU is 2π in Godot 4
+	CURRENT_ANGLE += deg_to_rad(CURRENT_RPM) * delta
+	CURRENT_ANGLE = wrapf(CURRENT_ANGLE, 0.0, TAU)  # More stable wrapping
+
 	
 	# Create a transform for the local spin
 	var spin_transform = Transform3D(Basis(Vector3.UP, CURRENT_ANGLE), Vector3.ZERO)
 	
 	# Combine them all
 	global_transform = DRONE.global_transform * offset_transform * spin_transform
+	
 	CURRENT_VELOCITY *= VELOCITY_DECAY * delta
 	
 func _physics_process(delta):
 	print("Voltage: %.2fV, RPM: %d, Force: %.2f" % [CURRENT_VOLTAGE, CURRENT_RPM, CURRENT_THRUST_FORCE])
 	
 	_rpm()
+	_thrust()
 
 	if CURRENT_VOLTAGE == 0:
 		return
 		
-	_thrust()
 	_apply_lift_force(delta)
-	#_apply_drag()
+	_apply_drag()
 	
 	var angular_speed = (CURRENT_RPM * 2 * PI) / 60
 	rotate_y(angular_speed * delta)
@@ -96,10 +98,10 @@ func _apply_drag():
 	_apply_drone_force(drag_force)
 
 func _apply_drone_force(force):
-	# Apply drag at the propeller's position relative to the drone
+	# Compute the propeller's position relative to the drone
 	var force_offset = global_transform.origin - DRONE.global_transform.origin
-	
-	# Apply the drag at the propeller's world position, affecting both translation and rotation
-	#print(force)
-	DRONE.apply_force(force, Vector3.ZERO)
+
+	# Apply the force at the propeller's position relative to the drone's center
+	DRONE.apply_force(force, force_offset)
+
 	

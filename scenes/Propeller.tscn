@@ -9,8 +9,9 @@
 [node name="Propeller" type="RigidBody3D"]
 mass = 0.175
 script = ExtResource("1_fxe28")
-SPEED_CONSTANT = 10
+SPEED_CONSTANT = 7
 DISC_AREA = 0.1
+MAX_VOLTAGE = 10.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)

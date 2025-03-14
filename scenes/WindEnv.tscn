@@ -32,6 +32,8 @@ volumetric_fog_detail_spread = 3.03143
 
 [node name="WindNode" type="Node3D"]
 script = ExtResource("1_h7g0s")
+base_wind_speed = 2.0
+turbulence_strength = 0.5
 
 [node name="Drone" parent="." instance=ExtResource("2_0w3p5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.37582, 0)
