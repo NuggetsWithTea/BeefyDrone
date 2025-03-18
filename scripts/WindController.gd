@@ -17,7 +17,7 @@ func _ready():
 	noise.frequency = 0.1  # Controls wind smoothness
 	drone = $Drone
 
-func _process(delta):
+func _physics_process(delta):
 	time += delta  # Increment time
 
 	# Generate smooth Perlin Noise wind variations

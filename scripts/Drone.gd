@@ -1,6 +1,7 @@
 extends RigidBody3D
 class_name DroneController
-
+#########################################
+# apply all lift forces from the propellers in this script. this should fix the wiggle problem
 var propellers:Array[Propeller]
 var ground: MeshInstance3D
 var Current_WIND_FORCE = Vector3.ZERO
@@ -17,7 +18,7 @@ func _process(delta):
 	var tilt = global_transform.basis.y.normalized()
 	tilt.y = 0
 	
-	apply_central_force(tilt)
+	apply_central_force(tilt*2)
 	
 func _input(event):
 	if Input.is_action_just_pressed("forward"):
@@ -37,7 +38,7 @@ func _input(event):
 			prop.increase_voltage(-1)
  
 func _physics_process(delta):
-	linear_velocity += Current_WIND_FORCE * delta
+	linear_velocity += (Current_WIND_FORCE / mass) * delta
 	
 	
 func set_wind_force(force:Vector3):
