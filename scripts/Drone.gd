@@ -3,12 +3,16 @@ class_name DroneController
 
 @export var DRAG_COEFFICIENT: float = 0.1  # Air resistance
 @export var ROTATIONAL_DAMPING: float = .9
+@export var ALTITUDE_CHECK_DISTANCE: float = 500
+
 #########################################
 # apply all lift forces from the propellers in this script. this should fix the wiggle problem
 var propellers:Array[Propeller]
 var ground: MeshInstance3D
 var Current_WIND_FORCE = Vector3.ZERO
 var CURRENT_DRAG: Vector3 = Vector3.ZERO
+
+var CURRENT_ALTITUDE: float = 0 #distance between the drone and the nearest obstacle
 
 func _ready():
 	propellers = [$"Propeller 1", $"Propeller 2", $"Propeller 3",$"Propeller 4"]
@@ -22,9 +26,10 @@ func _physics_process(delta):
 	effective_lift(delta)
 	var drag = -DRAG_COEFFICIENT * linear_velocity
 	apply_force(drag)
-	
+	get_altitude()
 	angular_velocity *= .98
 	linear_velocity += (Current_WIND_FORCE / mass) * delta
+	#print(global_position)
 	
 func _input(event):
 	if Input.is_action_just_pressed("forward"):
@@ -42,6 +47,32 @@ func _input(event):
 	if Input.is_action_just_pressed("down"):
 		for prop in propellers:
 			prop.increase_voltage(-.5)
+			
+func get_altitude():
+	var coll_shape = $CollisionShape3D
+	var size = coll_shape.shape.size * coll_shape.scale
+	# We'll cast a ray straight down from the drone's position
+	var space_state = get_world_3d().direct_space_state
+	var origin = global_transform.origin 
+	var target = origin - Vector3(0, ALTITUDE_CHECK_DISTANCE, 0)
+
+	var query = PhysicsRayQueryParameters3D.create(origin, target)
+	# If your ground is a physics body, these defaults work.
+	# Adjust if you need to collide with or exclude certain layers.
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	query.exclude = [self]
+
+	# Perform the actual raycast
+	var result = space_state.intersect_ray(query)
+	
+	if result.has("position"):
+		# Return how far the drone is from the point where the ray hit
+		CURRENT_ALTITUDE = (origin - result["position"]).length()
+		return
+	
+	# If it didn't hit anything, assume max distance
+	CURRENT_ALTITUDE = ALTITUDE_CHECK_DISTANCE
 			
 func effective_lift(delta):
 	var total_force = Vector3.ZERO

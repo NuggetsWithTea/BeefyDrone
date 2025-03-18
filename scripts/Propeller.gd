@@ -11,8 +11,8 @@ class_name Propeller
 
 @export var SEA_LEVEL_DENSITY: float = 1.225  # kg/m³
 @export var SEA_LEVEL_STANDARD_TEMPERATURE_C: float = 15.0  # °C
-@export var TEMPERATURE_DROP_RATE: float = 0.0065  # K per meter
-@export var GRAVITY: float = 9.81
+@export var TEMPERATURE_DROP_RATE: float = 0.65  # K per meter
+@export var GRAVITY: float = 0 # set in ready
 @export var MOLAR_MASS: float = 0.02896
 @export var UNIVERSAL_GAS_CONSTANT: float = 8.314
 
@@ -33,6 +33,7 @@ var DRONE: DroneController
 func _ready():
 	LOCAL_OFFSET = global_transform.origin - owner.global_transform.origin
 	DRONE = owner as RigidBody3D
+	GRAVITY = ProjectSettings.get_setting("physics/3d/default_gravity") as float
 
 func _process(delta):
 	# Build a transform for the local offset
@@ -59,6 +60,7 @@ func _physics_process(delta):
 
 	if CURRENT_VOLTAGE == 0:
 		return
+		
 	var alt = global_position.y
 	var ground = get_ground_effect(alt)
 	calc_applied_force(delta, ground)
@@ -70,28 +72,30 @@ func air_density() -> float:
 	var T0 = SEA_LEVEL_STANDARD_TEMPERATURE_C + 273.15  # convert °C to K
 	
 	# The exponent from the barometric formula
-	var exponent_val = (GRAVITY * MOLAR_MASS) / (UNIVERSAL_GAS_CONSTANT * TEMPERATURE_DROP_RATE) - 1.0
+	var exponent_val = (GRAVITY * MOLAR_MASS) / (UNIVERSAL_GAS_CONSTANT * TEMPERATURE_DROP_RATE)
 
 	# base term: (1 - L*h / T0)
-	var altitude = global_position.y  # or however you define "height" in meters
-	var base_term = 1.0 - (TEMPERATURE_DROP_RATE * altitude / T0)
-	
+	var base_term = 1-(TEMPERATURE_DROP_RATE * DRONE.CURRENT_ALTITUDE / T0)
+	print(DRONE.CURRENT_ALTITUDE)
 	# If base_term is <= 0, it means altitude is beyond formula's range.
 	if base_term <= 0:
 		return 0.0
 	
 	# Raise base_term to exponent_val, multiply by sea-level density
 	return SEA_LEVEL_DENSITY * pow(base_term, exponent_val)
-
+	
 func get_ground_effect(altitude: float) -> float:
 	var ground_effect_threshold = DISC_AREA * 2  # Max altitude for ground effect
 	var max_boost = 1.3  # Boost factor when very close
 
-	if altitude >= ground_effect_threshold:
+	if DRONE.CURRENT_ALTITUDE >= ground_effect_threshold:
 		return 1.0  # No boost at higher altitudes
 
-	var boost = max_boost - ((altitude / ground_effect_threshold) * max_boost)
-	print(boost)
+	#linear decay based on altitude
+	var t = clamp(altitude / ground_effect_threshold, 0.0, 1.0)
+	var boost = lerp(max_boost, 1.0, t)  # Fades from max_boost at 0 altitude to 1.0 at threshold
+
+	#print(boost)
 	return boost
 
 func increase_voltage(voltage:float):
@@ -121,7 +125,7 @@ func _thrust():
 		return
 		
 	var current_air_density = air_density()
-	
+	#print(current_air_density)
 	# Thrust calculation
 	CURRENT_THRUST_FORCE = THRUST_COEFFICIENT * current_air_density  * DISC_AREA * pow((CURRENT_RPM / 60), 2)
 

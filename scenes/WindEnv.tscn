@@ -38,7 +38,8 @@ turbulence_strength = 0.0
 gust_frequency = 0.0
 
 [node name="Drone" parent="." instance=ExtResource("2_0w3p5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.37582, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.389859, 0)
+center_of_mass = Vector3(0, -0.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Drone"]
 transform = Transform3D(0.999999, -0.00094904, 0.00140186, -7.4619e-09, 0.82806, 0.560639, -0.00169289, -0.560638, 0.828059, -0.0865877, 2.41951, 3.17275)
