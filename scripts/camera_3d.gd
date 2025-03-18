@@ -6,6 +6,7 @@ var offset: Vector3
 func _ready():
 	drone = $".."
 	offset = drone.global_position - global_position
+	top_level = true
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
