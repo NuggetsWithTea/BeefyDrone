@@ -7,11 +7,9 @@
 [sub_resource type="BoxMesh" id="BoxMesh_wfixy"]
 
 [node name="Propeller" type="RigidBody3D"]
-mass = 0.175
+mass = 0.02
 script = ExtResource("1_fxe28")
-SPEED_CONSTANT = 7
-DISC_AREA = 0.1
-MAX_VOLTAGE = 10.0
+DISC_AREA = 0.5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
