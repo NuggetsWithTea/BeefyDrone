@@ -3,7 +3,8 @@ class_name DroneController
 
 @export var DRAG_COEFFICIENT: float = 0.1  # Air resistance
 @export var ROTATIONAL_DAMPING: float = .9
-@export var ALTITUDE_CHECK_DISTANCE: float = 500
+@export var ALTITUDE_CHECK_DISTANCE: float = 5000
+@export var GRAVITY: float = 0 # set in ready
 
 #########################################
 # apply all lift forces from the propellers in this script. this should fix the wiggle problem
@@ -16,11 +17,11 @@ var CURRENT_ALTITUDE: float = 0 #distance between the drone and the nearest obst
 
 func _ready():
 	propellers = [$"Propeller 1", $"Propeller 2", $"Propeller 3",$"Propeller 4"]
-	
 	ground = $"../Ground"
+	GRAVITY = ProjectSettings.get_setting("physics/3d/default_gravity") as float
 	add_to_group("wind_affected")
-	#for p in propellers:
-		#p.set_voltage(4)
+	for p in propellers:
+		p.set_voltage(4)
 
 func _physics_process(delta):
 	effective_lift(delta)

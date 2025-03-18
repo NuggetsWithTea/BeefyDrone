@@ -12,7 +12,6 @@ class_name Propeller
 @export var SEA_LEVEL_DENSITY: float = 1.225  # kg/m³
 @export var SEA_LEVEL_STANDARD_TEMPERATURE_C: float = 15.0  # °C
 @export var TEMPERATURE_DROP_RATE: float = 0.65  # K per meter
-@export var GRAVITY: float = 0 # set in ready
 @export var MOLAR_MASS: float = 0.02896
 @export var UNIVERSAL_GAS_CONSTANT: float = 8.314
 
@@ -33,7 +32,6 @@ var DRONE: DroneController
 func _ready():
 	LOCAL_OFFSET = global_transform.origin - owner.global_transform.origin
 	DRONE = owner as RigidBody3D
-	GRAVITY = ProjectSettings.get_setting("physics/3d/default_gravity") as float
 
 func _process(delta):
 	# Build a transform for the local offset
@@ -72,14 +70,15 @@ func air_density() -> float:
 	var T0 = SEA_LEVEL_STANDARD_TEMPERATURE_C + 273.15  # convert °C to K
 	
 	# The exponent from the barometric formula
-	var exponent_val = (GRAVITY * MOLAR_MASS) / (UNIVERSAL_GAS_CONSTANT * TEMPERATURE_DROP_RATE)
+	var exponent_val = ((DRONE.GRAVITY * MOLAR_MASS) * DRONE.mass) / (UNIVERSAL_GAS_CONSTANT * TEMPERATURE_DROP_RATE)
 
 	# base term: (1 - L*h / T0)
 	var base_term = 1-(TEMPERATURE_DROP_RATE * DRONE.CURRENT_ALTITUDE / T0)
-	print(DRONE.CURRENT_ALTITUDE)
+	
 	# If base_term is <= 0, it means altitude is beyond formula's range.
 	if base_term <= 0:
-		return 0.0
+		#hacky lösung. nochmal richtig machen
+		return 0.2
 	
 	# Raise base_term to exponent_val, multiply by sea-level density
 	return SEA_LEVEL_DENSITY * pow(base_term, exponent_val)
@@ -125,7 +124,7 @@ func _thrust():
 		return
 		
 	var current_air_density = air_density()
-	#print(current_air_density)
+	print(current_air_density)
 	# Thrust calculation
 	CURRENT_THRUST_FORCE = THRUST_COEFFICIENT * current_air_density  * DISC_AREA * pow((CURRENT_RPM / 60), 2)
 
