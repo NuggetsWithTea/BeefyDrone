@@ -30,6 +30,7 @@ func _ready():
 	MOMENT_OF_INERTIA = moment_of_inertia()
 
 func _physics_process(delta):
+	update_drag_force()
 	effective_lift(delta)
 	get_altitude()
 	apply_yaw_torque(delta)
@@ -170,3 +171,8 @@ func effective_lift(delta):
 
 func set_wind_force(force:Vector3):
 	Current_WIND_FORCE = force
+	
+func update_drag_force():
+	var speed = linear_velocity.length()  # Get the speed of the drone
+	var drag_magnitude = DRAG_COEFFICIENT * speed * speed  # Example drag formula
+	CURRENT_DRAG = -linear_velocity.normalized() * drag_magnitude  # Opposite direction to velocity

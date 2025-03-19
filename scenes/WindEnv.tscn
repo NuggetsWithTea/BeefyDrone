@@ -1,11 +1,11 @@
 [gd_scene load_steps=14 format=3 uid="uid://bpuegyt40rap5"]
 
-[ext_resource type="Script" path="res://scripts/WindController.gd" id="1_h7g0s"]
+[ext_resource type="Script" uid="uid://wmtuelrj6dld" path="res://scripts/WindController.gd" id="1_h7g0s"]
 [ext_resource type="PackedScene" uid="uid://c6p6nf4nw2g1w" path="res://scenes/Drone.tscn" id="2_0w3p5"]
 [ext_resource type="Texture2D" uid="uid://dy8sn74ld8avx" path="res://assets/dirty road surface pixelart texture_0.png" id="3_fp3mi"]
-[ext_resource type="Script" path="res://scripts/camera_3d.gd" id="3_nixo6"]
+[ext_resource type="Script" uid="uid://be5wtls3jcxlp" path="res://scripts/camera_3d.gd" id="3_nixo6"]
 [ext_resource type="Texture2D" uid="uid://bfbbwh87u8wlr" path="res://assets/panorama venyl impressionistic sky width= 1440 height= 1440_0.png" id="4_gx5s4"]
-[ext_resource type="Script" path="res://scenes/gui.gd" id="6_5jd8f"]
+[ext_resource type="Script" uid="uid://qtq7w0h3mifd" path="res://scenes/gui.gd" id="6_5jd8f"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_2cei1"]
 
@@ -79,4 +79,19 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="Label_Yaw" type="Label" parent="GUI/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label_Volt" type="Label" parent="GUI/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label_P1" type="Label" parent="GUI/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label_P2" type="Label" parent="GUI/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label_P3" type="Label" parent="GUI/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label_P4" type="Label" parent="GUI/VBoxContainer"]
 layout_mode = 2
