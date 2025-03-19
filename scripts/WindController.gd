@@ -1,10 +1,10 @@
 extends Node3D
 
-@export var wind_direction := Vector3(1, 0, 0)  # Default wind direction
-
-@export var base_wind_speed := 5.0  # Base wind strength
-@export var turbulence_strength := 2.0  # Wind variability
-@export var gust_frequency := 0.3  # Controls gustiness
+@export var ENABLED: bool = true
+@export var WIND_DIRECTION := Vector3(1, 0, 0)  # Default wind direction
+@export var BASE_WIND_SPEED := 5.0  # Base wind strength
+@export var TURBULENCE_STRENGTH := 2.0  # Wind variability
+@export var GUST_FREQUENCY := 0.3  # Controls gustiness
 
 var time := 0.0  # Time tracker for Perlin noise
 var noise := FastNoiseLite.new()  # Create noise instance
@@ -18,24 +18,27 @@ func _ready():
 	drone = $Drone
 
 func _physics_process(delta):
+	if not ENABLED:
+		return
+		
 	time += delta  # Increment time
 
 	# Generate smooth Perlin Noise wind variations
-	var wind_noise_x = noise.get_noise_1d(time * gust_frequency) * turbulence_strength
-	var wind_noise_y = noise.get_noise_1d((time + 100) * gust_frequency) * turbulence_strength
-	var wind_noise_z = noise.get_noise_1d((time + 200) * gust_frequency) * turbulence_strength
+	var wind_noise_x = noise.get_noise_1d(time * GUST_FREQUENCY) * TURBULENCE_STRENGTH
+	var wind_noise_y = noise.get_noise_1d((time + 100) * GUST_FREQUENCY) * TURBULENCE_STRENGTH
+	var wind_noise_z = noise.get_noise_1d((time + 200) * GUST_FREQUENCY) * TURBULENCE_STRENGTH
 
 	var perlin_wind = Vector3(wind_noise_x, wind_noise_y, wind_noise_z)
 
 	# Generate stochastic gusts (random bursts of wind)
 	var gusts = Vector3(
-		randf_range(-1, 1) * turbulence_strength if randf() < 0.1 else 0,
-		randf_range(-1, 1) * turbulence_strength if randf() < 0.1 else 0,
-		randf_range(-1, 1) * turbulence_strength if randf() < 0.1 else 0
+		randf_range(-1, 1) * TURBULENCE_STRENGTH if randf() < 0.1 else 0,
+		randf_range(-1, 1) * TURBULENCE_STRENGTH if randf() < 0.1 else 0,
+		randf_range(-1, 1) * TURBULENCE_STRENGTH if randf() < 0.1 else 0
 	)
 
 	# Combine smooth wind (Perlin Noise) and gusts (stochastic)
-	var final_wind = wind_direction * base_wind_speed + perlin_wind + gusts
+	var final_wind = WIND_DIRECTION * BASE_WIND_SPEED + perlin_wind + gusts
 
 	# Apply wind force to all RigidBodies in the "wind_affected" group
 	apply_wind_to_objects(final_wind)

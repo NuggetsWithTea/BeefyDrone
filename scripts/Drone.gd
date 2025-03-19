@@ -5,7 +5,7 @@ class_name DroneController
 @export var ROTATIONAL_DAMPING: float = .9
 @export var ALTITUDE_CHECK_DISTANCE: float = 5000
 @export var GRAVITY: float = 0 # set in ready
-@export var TORGUE_COEFFICIENT: float = 0.025  # C_q, adjust based on your propeller specs
+@export var TORGUE_COEFFICIENT: float = 0.0025  # C_q, adjust based on your propeller specs
 
 var propellers:Array[Propeller]
 var ground: MeshInstance3D
@@ -46,12 +46,12 @@ func _input(event):
 		propellers[2].increase_voltage(.5)
 		propellers[3].increase_voltage(.5)
 		
-	if Input.is_action_pressed("right"):
+	if Input.is_action_pressed("left"):
 		propellers[1].IS_ROTATION_REVERSED = turn_right
 		propellers[3].IS_ROTATION_REVERSED = turn_right
 		turn_right = not turn_right
 	
-	if Input.is_action_pressed("left"):
+	if Input.is_action_pressed("right"):
 		propellers[0].IS_ROTATION_REVERSED = turn_left
 		propellers[2].IS_ROTATION_REVERSED = turn_left
 		turn_left = not turn_left
