@@ -5,6 +5,8 @@ class_name DroneController
 @export var ROTATIONAL_DAMPING: float = .9
 @export var ALTITUDE_CHECK_DISTANCE: float = 5000
 @export var GRAVITY: float = 0 # set in ready
+@export var TORGUE_COEFFICIENT: float = 0.025  # C_q, adjust based on your propeller specs
+
 
 var propellers:Array[Propeller]
 var ground: MeshInstance3D
@@ -26,7 +28,8 @@ func _physics_process(delta):
 	effective_lift(delta)
 	
 	get_altitude()
-	linear_velocity += (Current_WIND_FORCE / mass) * delta
+	apply_yaw_torque(delta)
+	apply_impulse((Current_WIND_FORCE / mass) * delta)
 	apply_central_force(Vector3(0, -GRAVITY * delta, 0))
 	angular_velocity *= .98
 	#print(global_position)
@@ -40,6 +43,20 @@ func _input(event):
 		propellers[2].increase_voltage(.5)
 		propellers[3].increase_voltage(.5)
 		
+	if Input.is_action_pressed("right"):
+		propellers[1].IS_ROTATION_REVERSED = true
+		propellers[3].IS_ROTATION_REVERSED = true
+	else:
+		propellers[1].IS_ROTATION_REVERSED = false
+		propellers[3].IS_ROTATION_REVERSED = false
+	
+	if Input.is_action_pressed("left"):
+		propellers[0].IS_ROTATION_REVERSED = true
+		propellers[2].IS_ROTATION_REVERSED = true
+	else:
+		propellers[0].IS_ROTATION_REVERSED = false
+		propellers[2].IS_ROTATION_REVERSED = false
+		
 	if Input.is_action_just_pressed("up"):
 		for prop in propellers:
 			prop.increase_voltage(.5)
@@ -52,7 +69,16 @@ func _input(event):
 		for prop in propellers:
 			prop.set_voltage(0)
 	
-			
+func apply_yaw_torque(delta):
+	var net_yaw_torque: float = 0.0
+	for prop in propellers:
+		var sigma: int = -1 if prop.IS_ROTATION_REVERSED else 1 # +1 or -1, depending on rotor spin
+		var rpm: float = prop.CURRENT_RPM
+		var n: float = rpm / 60.0  # Convert RPM to revolutions per second (RPS)
+		net_yaw_torque += sigma * TORGUE_COEFFICIENT * n * n
+	# Apply the net yaw torque about the up axis (or appropriate axis)
+	apply_torque(Vector3.UP * net_yaw_torque)
+
 func get_altitude():
 	var coll_shape = $CollisionShape3D
 	var size = coll_shape.shape.size * coll_shape.scale

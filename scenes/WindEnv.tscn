@@ -34,6 +34,7 @@ volumetric_fog_detail_spread = 3.03143
 
 [node name="WindNode" type="Node3D"]
 script = ExtResource("1_h7g0s")
+wind_direction = Vector3(1, 0, 1)
 base_wind_speed = 0.0
 turbulence_strength = 0.0
 gust_frequency = 0.0
