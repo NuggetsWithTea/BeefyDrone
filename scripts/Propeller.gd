@@ -124,7 +124,6 @@ func _thrust():
 		return
 		
 	var current_air_density = air_density()
-	print(current_air_density)
 	# Thrust calculation
 	CURRENT_THRUST_FORCE = THRUST_COEFFICIENT * current_air_density  * DISC_AREA * pow((CURRENT_RPM / 60), 2)
 

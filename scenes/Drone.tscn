@@ -11,7 +11,6 @@ size = Vector3(1.005, 0.24, 1.745)
 [node name="Drone" type="RigidBody3D"]
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -0.5, 0)
-constant_force = Vector3(0, -9.81, 0)
 script = ExtResource("1_vvmbt")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

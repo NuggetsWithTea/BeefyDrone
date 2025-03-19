@@ -6,12 +6,11 @@ class_name DroneController
 @export var ALTITUDE_CHECK_DISTANCE: float = 5000
 @export var GRAVITY: float = 0 # set in ready
 
-#########################################
-# apply all lift forces from the propellers in this script. this should fix the wiggle problem
 var propellers:Array[Propeller]
 var ground: MeshInstance3D
 var Current_WIND_FORCE = Vector3.ZERO
 var CURRENT_DRAG: Vector3 = Vector3.ZERO
+var MOMENT_OF_INERTIA: float = 0
 
 var CURRENT_ALTITUDE: float = 0 #distance between the drone and the nearest obstacle
 
@@ -20,16 +19,16 @@ func _ready():
 	ground = $"../Ground"
 	GRAVITY = ProjectSettings.get_setting("physics/3d/default_gravity") as float
 	add_to_group("wind_affected")
-	for p in propellers:
-		p.set_voltage(4)
+	
+	MOMENT_OF_INERTIA = moment_of_inertia()
 
 func _physics_process(delta):
 	effective_lift(delta)
-	var drag = -DRAG_COEFFICIENT * linear_velocity
-	apply_force(drag)
+	
 	get_altitude()
-	angular_velocity *= .98
 	linear_velocity += (Current_WIND_FORCE / mass) * delta
+	apply_central_force(Vector3(0, -GRAVITY * delta, 0))
+	angular_velocity *= .98
 	#print(global_position)
 	
 func _input(event):
@@ -48,6 +47,11 @@ func _input(event):
 	if Input.is_action_just_pressed("down"):
 		for prop in propellers:
 			prop.increase_voltage(-.5)
+			
+	if Input.is_action_just_pressed("stop"):
+		for prop in propellers:
+			prop.set_voltage(0)
+	
 			
 func get_altitude():
 	var coll_shape = $CollisionShape3D
@@ -74,8 +78,27 @@ func get_altitude():
 	
 	# If it didn't hit anything, assume max distance
 	CURRENT_ALTITUDE = ALTITUDE_CHECK_DISTANCE
-			
+	
+func moment_of_inertia():
+	var drone_arm_mass = mass * 0.25
+	var moment_of_inertia = 0
+	for prop in propellers:
+		var prop_mass = prop.mass
+		var dist_from_center = prop.LOCAL_OFFSET.x
+		
+		var dist_center_squared = pow(dist_from_center, 2)
+		var left_shit = (drone_arm_mass * dist_center_squared) / 3
+		var right_shit = prop_mass * dist_center_squared
+		
+		var shit = left_shit + right_shit
+		moment_of_inertia += shit
+	
+	return moment_of_inertia
+	
 func effective_lift(delta):
+	if(propellers.all(func(x): return x.CURRENT_VOLTAGE == 0)):
+		return
+		
 	var total_force = Vector3.ZERO
 	var total_torque = Vector3.ZERO
 
@@ -90,34 +113,34 @@ func effective_lift(delta):
 		total_torque += offset.cross(force)  # Rotational force
 
 	# Get the drone’s local axes
-	var up_direction = global_transform.basis.y.normalized()       # Local "up"
-	var forward_direction = -global_transform.basis.z.normalized() # Local "forward"
-	var right_direction = global_transform.basis.x.normalized()    # Local "right"
+	var up_direction = global_transform.basis.y.normalized()       # Drone's up
+	var forward_direction = -global_transform.basis.z.normalized() # Drone's forward
+	var right_direction = global_transform.basis.x.normalized()    # Drone's right
 
-	# Separate total force into vertical and horizontal components
-	var vertical_force = total_force.project(up_direction)   # Lift force
-	var horizontal_force = total_force - vertical_force      # Horizontal movement force
+	# **Corrected Force Decomposition**
+	var world_up = Vector3.UP  # World up direction, always (0,1,0)
 
-	# Project linear velocity onto the drone's axes using dot product
-	var velocity_forward = forward_direction * linear_velocity.dot(forward_direction)
-	var velocity_right = right_direction * linear_velocity.dot(right_direction)
-	var velocity_up = up_direction * linear_velocity.dot(up_direction)
+	var vertical_force = total_force.project(world_up)  # Lift force in world space
+	var forward_force = -total_force.project(forward_direction)  # Forward thrust
+	var sideways_force = total_force.project(right_direction)  # Lateral thrust
 
-	# Reconstruct velocity with respect to drone’s orientation
-	linear_velocity = velocity_forward + velocity_right + velocity_up
+	# Apply linear acceleration from forces (Newton's Second Law: F = m * a)
+	linear_velocity += (vertical_force / mass) * delta  # Move up/down
+	linear_velocity += (forward_force / mass) * delta  # Move forward/backward
+	linear_velocity += (sideways_force / mass) * delta  # Move sideways
 
-	# Apply lift and movement forces
-	linear_velocity += (vertical_force / mass) * delta  # Maintain altitude
-	linear_velocity += (horizontal_force / mass) * delta  # Move in tilt direction
+	# **Apply Torque with Moment of Inertia**
+	var angular_acceleration = total_torque / MOMENT_OF_INERTIA  # Compute rotational acceleration
+	angular_velocity += angular_acceleration * delta  # Update rotation
 
-	apply_torque(total_torque)  # Apply rotation torque
-
-	# Apply drag to stabilize movement
-	var drag = -DRAG_COEFFICIENT * linear_velocity
-	apply_central_force(drag)
-	
+	# **Apply Rotational Damping** (prevents infinite spinning)
 	var damping_torque = -angular_velocity * ROTATIONAL_DAMPING
 	apply_torque(damping_torque)
+
+	# **Apply Drag to Stabilize Movement**
+	var drag = -DRAG_COEFFICIENT * linear_velocity
+	apply_central_force(drag)
+
 
 
 func set_wind_force(force:Vector3):
