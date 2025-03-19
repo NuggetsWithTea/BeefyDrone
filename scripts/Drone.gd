@@ -7,17 +7,22 @@ class_name DroneController
 @export var GRAVITY: float = 0 # set in ready
 @export var TORGUE_COEFFICIENT: float = 0.025  # C_q, adjust based on your propeller specs
 
-
 var propellers:Array[Propeller]
 var ground: MeshInstance3D
 var Current_WIND_FORCE = Vector3.ZERO
 var CURRENT_DRAG: Vector3 = Vector3.ZERO
 var MOMENT_OF_INERTIA: float = 0
 
+var turn_right = true
+var turn_left = false
+
 var CURRENT_ALTITUDE: float = 0 #distance between the drone and the nearest obstacle
 
 func _ready():
 	propellers = [$"Propeller 1", $"Propeller 2", $"Propeller 3",$"Propeller 4"]
+	#this has to be set here, because godot otherwise overwrites this when initializing the propellers
+	propellers[0].IS_ROTATION_REVERSED = true
+	propellers[2].IS_ROTATION_REVERSED = true
 	ground = $"../Ground"
 	GRAVITY = ProjectSettings.get_setting("physics/3d/default_gravity") as float
 	add_to_group("wind_affected")
@@ -26,13 +31,11 @@ func _ready():
 
 func _physics_process(delta):
 	effective_lift(delta)
-	
 	get_altitude()
 	apply_yaw_torque(delta)
 	apply_impulse((Current_WIND_FORCE / mass) * delta)
 	apply_central_force(Vector3(0, -GRAVITY * delta, 0))
 	angular_velocity *= .98
-	#print(global_position)
 	
 func _input(event):
 	if Input.is_action_just_pressed("forward"):
@@ -44,19 +47,15 @@ func _input(event):
 		propellers[3].increase_voltage(.5)
 		
 	if Input.is_action_pressed("right"):
-		propellers[1].IS_ROTATION_REVERSED = true
-		propellers[3].IS_ROTATION_REVERSED = true
-	else:
-		propellers[1].IS_ROTATION_REVERSED = false
-		propellers[3].IS_ROTATION_REVERSED = false
+		propellers[1].IS_ROTATION_REVERSED = turn_right
+		propellers[3].IS_ROTATION_REVERSED = turn_right
+		turn_right = not turn_right
 	
 	if Input.is_action_pressed("left"):
-		propellers[0].IS_ROTATION_REVERSED = true
-		propellers[2].IS_ROTATION_REVERSED = true
-	else:
-		propellers[0].IS_ROTATION_REVERSED = false
-		propellers[2].IS_ROTATION_REVERSED = false
-		
+		propellers[0].IS_ROTATION_REVERSED = turn_left
+		propellers[2].IS_ROTATION_REVERSED = turn_left
+		turn_left = not turn_left
+	
 	if Input.is_action_just_pressed("up"):
 		for prop in propellers:
 			prop.increase_voltage(.5)

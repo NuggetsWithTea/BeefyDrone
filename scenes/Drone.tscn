@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://c6p6nf4nw2g1w"]
 
-[ext_resource type="Script" uid="uid://5yihrl2rkhdx" path="res://scripts/Drone.gd" id="1_vvmbt"]
+[ext_resource type="Script" path="res://scripts/Drone.gd" id="1_vvmbt"]
 [ext_resource type="PackedScene" uid="uid://d3mtxaq3737si" path="res://scenes/Propeller.tscn" id="2_ph5mp"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gp6am"]

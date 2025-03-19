@@ -19,7 +19,7 @@ var CURRENT_RPM: int = 0
 var CURRENT_VOLTAGE: float = 0.0
 var CURRENT_THRUST_FORCE: float = 0.0
 var CURRENT_ANGLE = 0
-var IS_ROTATION_REVERSED = false
+var IS_ROTATION_REVERSED: bool = false
 
 #use these values in other scripts 
 var CURRENT_APPLIED_FORCE: Vector3 = Vector3.ZERO
@@ -133,5 +133,5 @@ func _thrust():
 func calc_applied_force(delta, ground_effect):
 	var y_vel: float = CURRENT_VELOCITY.y + CURRENT_THRUST_FORCE * (1-delta) * ground_effect
 	var force = Vector3(CURRENT_VELOCITY.x, y_vel, CURRENT_VELOCITY.z)
-	CURRENT_APPLIED_FORCE = force if not IS_ROTATION_REVERSED else -force
+	CURRENT_APPLIED_FORCE = force 
 	

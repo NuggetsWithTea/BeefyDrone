@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://d3mtxaq3737si"]
 
-[ext_resource type="Script" uid="uid://whm3uxq4yvvg" path="res://scripts/Propeller.gd" id="1_fxe28"]
+[ext_resource type="Script" path="res://scripts/Propeller.gd" id="1_fxe28"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bgn0w"]
 
