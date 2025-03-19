@@ -1,10 +1,11 @@
-[gd_scene load_steps=14 format=3 uid="uid://bpuegyt40rap5"]
+[gd_scene load_steps=15 format=3 uid="uid://bpuegyt40rap5"]
 
 [ext_resource type="Script" uid="uid://wmtuelrj6dld" path="res://scripts/WindController.gd" id="1_h7g0s"]
 [ext_resource type="PackedScene" uid="uid://c6p6nf4nw2g1w" path="res://scenes/Drone.tscn" id="2_0w3p5"]
 [ext_resource type="Texture2D" uid="uid://dy8sn74ld8avx" path="res://assets/dirty road surface pixelart texture_0.png" id="3_fp3mi"]
 [ext_resource type="Script" uid="uid://be5wtls3jcxlp" path="res://scripts/camera_3d.gd" id="3_nixo6"]
 [ext_resource type="Texture2D" uid="uid://bfbbwh87u8wlr" path="res://assets/panorama venyl impressionistic sky width= 1440 height= 1440_0.png" id="4_gx5s4"]
+[ext_resource type="Script" uid="uid://dbudrnijupis4" path="res://scenes/force_visualizer.gd" id="4_tllhm"]
 [ext_resource type="Script" uid="uid://qtq7w0h3mifd" path="res://scenes/gui.gd" id="6_5jd8f"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_2cei1"]
@@ -43,6 +44,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.389859, 0)
 transform = Transform3D(0.999999, -0.00094904, 0.00140186, -7.4619e-09, 0.82806, 0.560639, -0.00169289, -0.560638, 0.828059, -0.0865877, 2.41951, 3.17275)
 top_level = true
 script = ExtResource("3_nixo6")
+
+[node name="Force Visualizer" type="Node3D" parent="Drone"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Drone/Force Visualizer"]
+script = ExtResource("4_tllhm")
 
 [node name="Ground" type="MeshInstance3D" parent="."]
 transform = Transform3D(10000, 0, 0, 0, -0.000437114, 1, 0, -10000, -4.37114e-08, 0, 0, 0)

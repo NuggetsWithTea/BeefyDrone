@@ -10,7 +10,6 @@ extends CanvasLayer
 @onready var label_p4 = $VBoxContainer/Label_P4
 @onready var drone = $"../Drone"
 
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	# Update the labels with the relevant data
@@ -29,9 +28,11 @@ func update_hud():
 	label_speed.text = "Speed: %.2f m/s" % speed
 	
 	# Update voltage
-	for prop in drone.propellers:
-		var volt = prop.CURRENT_VOLTAGE
-		label_volt.text = "Voltage: %.2f V" % volt
+	var volt = drone.propellers[0].CURRENT_VOLTAGE
+	volt += drone.propellers[1].CURRENT_VOLTAGE
+	volt += drone.propellers[2].CURRENT_VOLTAGE
+	volt += drone.propellers[3].CURRENT_VOLTAGE
+	label_volt.text = "Voltage: %.2f V" % volt
 		
 	# Update labels for each propeller
 	if drone.propellers.size() >= 4:
